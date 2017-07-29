@@ -1,0 +1,63 @@
+# GENERATOR COMPONENTS (actual name TBD)
+
+Let's say you have a component that needs to load some data and you want to
+show a placeholder until the request for that data finishes.
+
+Sure, let's whip that up:
+
+```jsx
+class MyComponent extends React.Component {
+  constructor(...props) {
+    super(...props);
+
+    this.state = {
+      data: null
+    };
+  }
+
+  async componentDidMount() {
+    const r = await fetch('/my/api/route')
+    const json = await r.json();
+    this.setState({data: json});
+  }
+
+  render() {
+    const { data } = this.state;
+
+    if (!data) {
+      return <div>Loading...</div>;
+    }
+
+    return (
+      <div>
+        Here's my data:
+        {JSON.stringify(data)}
+      </div>
+    );
+  }
+}
+```
+
+Not too exciting, I know, but that's the general pattern these days.
+
+Well, with generator components, you could write this instead:
+
+```jsx
+const MyComponent = fromGenerator(
+  async function* () {
+    yield <div>Loading...</div>;
+
+    const r = await fetch('/my/api/route');
+    const json = await r.json();
+
+    yield (
+        <div>
+          Here's my data:
+          {JSON.stringify(data)}
+        </div>
+    );
+  }
+);
+```
+
+Async generator functions?!? Oh yes, they're [stage-3](https://github.com/tc39/proposal-async-iteration#implementation-status), so you should see them land in various javascript engines soon.
