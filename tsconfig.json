@@ -3,9 +3,12 @@
     "module": "commonjs",
     "target": "es2015",
     "lib": ["dom", "esnext", "esnext.asynciterable"],
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "sourceMap": false,
-    "jsx": "react",
-    "importHelpers": true
+    "importHelpers": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "declaration": true
   }
 }

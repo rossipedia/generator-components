@@ -9,10 +9,12 @@
     "awesome-typescript-loader": "^3.2.2",
     "css-loader": "^0.28.4",
     "file-loader": "^0.11.2",
+    "glamor": "^2.20.37",
+    "glamorous": "^3.25.0",
     "html-webpack-plugin": "^2.29.0",
     "less": "^2.7.2",
     "less-loader": "^4.0.5",
-    "react": "^15.6.1",
+    "preact": "^8.2.1",
     "react-dom": "^15.6.1",
     "style-loader": "^0.18.2",
     "tslib": "^1.7.1",
@@ -23,5 +25,6 @@
   },
   "scripts": {
     "start": "webpack-dev-server -d --hot --content-base=dist/"
-  }
+  },
+  "dependencies": {}
 }
