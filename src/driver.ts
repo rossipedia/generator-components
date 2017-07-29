@@ -1,6 +1,6 @@
 export interface UpdateFn {
   (): Promise<any>;
-  <T extends Function>(fn: T): Function;
+  <T extends Function>(fn: T): T;
 }
 
 export interface JsxGeneratorArgs<P> {
