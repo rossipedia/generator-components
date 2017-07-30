@@ -1,0 +1,20 @@
+{
+  "name": "@generator-components/preact",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "tsc",
+    "build": "tsc"
+
+  },
+  "dependencies": {
+    "@generator-components/driver": "*",
+    "preact": "^8.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^2.4.2"
+  },
+  "peerDependencies": {
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@generator-components/react-sample",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack-dev-server -d --hot --content-base=dist/"
+  },
+  "devDependencies": {
+    "@generator-components/react": "*",
+    "@types/react": "^15.6.0",
+    "@types/react-dom": "^15.5.1",
+    "awesome-typescript-loader": "^3.2.2",
+    "glamor": "^2.20.37",
+    "glamorous": "^3.25.0",
+    "html-webpack-plugin": "^2.29.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "tslib": "^1.7.1",
+    "typescript": "^2.4.2",
+    "webpack": "^3.4.1",
+    "webpack-dev-server": "^2.6.1"
+  }
+}

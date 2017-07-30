@@ -6,9 +6,9 @@
     "noImplicitAny": true,
     "sourceMap": false,
     "importHelpers": true,
-    "rootDir": "src",
-    "outDir": "dist",
     "moduleResolution": "node",
-    "declaration": true
+    "jsx": "react",
+    "rootDir": "./src",
+    "outDir": "./dist"
   }
 }

@@ -51,45 +51,54 @@ function createDriver<P>(
   };
 }
 
-export function createWrapper<P>(h: Function, Component: any) {
-  type Props<P> = {
-    generator(g: JsxGenerator<P>): AsyncIterableIterator<JSX.Element>;
-    childProps?: P;
-  };
+export type JSXFactory = (type: any, props: any, ...children: any[]) => JSX.Element;
 
-  type State = { child: JSX.Element };
+export function createWrapper(h: JSXFactory , Component: any) {
+  return function<P = {}>(generator: JsxGenerator<P>, displayName?: string) {
 
-  class GeneratorComponent<P> extends Component<Props<P>, State> {
-    state: State = { child: null };
-    static defaultProps = { childProps: {} };
-    driver: IDriver;
+    type State = { child: JSX.Element };
 
-    componentWillMount() {
-      this.driver = createDriver(
-        this.props.generator,
-        () => this.props.childProps,
-        child => this.setState({ child })
-      );
-      this.driver.update();
+    class GeneratorComponent<P> extends Component<P, State> {
+      state: State = { child: null };
+      driver: IDriver;
+
+      componentWillMount() {
+        this.driver = createDriver(
+          generator,
+          () => this.props,
+          child => this.setState({ child })
+        );
+        this.driver.update();
+      }
+
+      componentDidUpdate() {
+        this.driver.update();
+      }
+
+      componentWillUnmount() {
+        this.driver.stop();
+      }
+
+      // TODO:
+      /*
+      shouldComponentUpdate() {
+
+      }
+      */
+
+      /*
+      componentWillReceiveProps() {
+
+      }
+      */
+
+      render() {
+        const { child } = this.state;
+        return child ? child : null;
+      }
     }
 
-    componentDidUpdate() {
-      this.driver.update();
-    }
-
-    componentWillUnmount() {
-      this.driver.stop();
-    }
-
-    render() {
-      const { child } = this.state;
-      return child ? child : null;
-    }
-  }
-
-  return function<P = {}>(generator: JsxGenerator<P>) {
-    return function(props: P) {
-      return h(GeneratorComponent, { generator, childProps: props });
-    };
+    GeneratorComponent.displayName = displayName || generator.name;
+    return GeneratorComponent as any;
   };
 }

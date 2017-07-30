@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "lib": ["dom", "esnext", "esnext.asynciterable"],
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "importHelpers": true,
+    "moduleResolution": "node",
+    "declaration": true,
+    "jsx": "preserve"
+  }
+}
