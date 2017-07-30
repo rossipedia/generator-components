@@ -1,16 +1,18 @@
-import * as React from 'react';
-import { render } from 'react-dom';
-import fromGenerator from '@generator-components/react';
-import gl from 'glamorous';
+import {h, render, Component, ComponentProps} from 'preact';
+import fromGenerator from '@generator-components/preact';
 
 (Symbol as any).asyncIterator =
   Symbol.asyncIterator !== undefined
     ? Symbol.asyncIterator
     : '__@@asyncIterator__';
 
-const Container = gl.div({
-  fontFamily: 'sans-serif'
-});
+function Container({ children }: ComponentProps<any>) {
+  return (
+    <div style={{ fontFamily: 'sans-serif' }}>
+      {children}
+    </div>
+  );
+}
 
 interface Props {
   num: number;
@@ -18,6 +20,9 @@ interface Props {
 }
 
 const Counter = fromGenerator<Props>(async function* Counter({ props, update }) {
+  // assume onChange doesn't actually... change
+  console.log('Initial props:', props);
+
   const inc = update(() => props.onChange(1));
   const dec = update(() => props.onChange(-1));
 
@@ -37,11 +42,12 @@ const Counter = fromGenerator<Props>(async function* Counter({ props, update }) 
 });
 
 
-class App extends React.Component<{}, {num: number}> {
+interface St { num: number };
+class App extends Component<{}, St> {
   state = { num: 0 };
 
   onChange = (by: number) => {
-    this.setState(prev => ({ num: prev.num + by }));
+    this.setState((prev: St) => ({ num: prev.num + by }));
   };
 
   render() {

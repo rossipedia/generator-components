@@ -2,19 +2,22 @@
   "name": "@generator-components/preact",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "index.js",
+  "main": "preact-driver.cjs.js",
+  "module": "preact-driver.es.js",
+  "types": "index.d.ts",
   "scripts": {
-    "prepare": "tsc",
-    "build": "tsc"
-
+    "build": "rollup -c",
+    "prepare": "rollup -c"
   },
-  "dependencies": {
-    "@generator-components/driver": "*",
+  "peerDependencies": {
     "preact": "^8.2.1"
   },
   "devDependencies": {
-    "typescript": "^2.4.2"
+    "rollup": "^0.45.2"
   },
-  "peerDependencies": {
-  }
+  "files": [
+    "preact-driver.cjs.js",
+    "preact-driver.es.js",
+    "index.d.ts"
+  ]
 }

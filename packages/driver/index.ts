@@ -1,15 +1,21 @@
+export interface AsyncIterator<T, TIn = any> {
+    next(value?: TIn): Promise<IteratorResult<T>>;
+    return?(value?: TIn): Promise<IteratorResult<T>>;
+    throw?(e?: TIn): Promise<IteratorResult<T>>;
+}
+
 export interface UpdateFn {
   (): Promise<any>;
   <T extends Function>(fn: T): T;
 }
 
-export interface JsxGeneratorArgs<P> {
+export interface GeneratorArgs<P> {
   props: P;
   update: UpdateFn;
 }
 
-export interface JsxGenerator<P = {}> {
-  ({ props, update }: JsxGeneratorArgs<P>): AsyncIterableIterator<JSX.Element>;
+export interface GeneratorFn<P = {}, TOut = any> {
+  ({ props, update }: GeneratorArgs<P>): AsyncIterator<TOut, P>;
 }
 
 interface IDriver {
@@ -17,20 +23,20 @@ interface IDriver {
   stop(): void;
 }
 
-function createDriver<P>(
-  generator: JsxGenerator<P>,
+function createDriver<P, TOut = any>(
+  generator: GeneratorFn<P>,
   props: () => P,
-  render: (child: JSX.Element) => void
+  render: (child: TOut) => void
 ): IDriver {
   let running = true;
-  let gen: AsyncIterableIterator<JSX.Element>;
+  let gen: AsyncIterator<TOut, P>;
 
-  function update(fn?: Function): Promise<any> | Function {
+  function update<T extends Function>(fn?: T): Promise<any> | T {
     if (typeof fn === 'function') {
       return function(...args: any[]) {
         fn(...args);
         return update();
-      };
+      } as any; // shut up typescript I know what I'm doing
     }
 
     return gen.next(props()).then(result => {
@@ -41,7 +47,7 @@ function createDriver<P>(
 
   // kick it off
   const initialProps = props();
-  gen = generator({ props: initialProps, update } as JsxGeneratorArgs<P>);
+  gen = generator({ props: initialProps, update } as GeneratorArgs<P>);
   return {
     update: update as UpdateFn,
     stop() {
@@ -51,14 +57,11 @@ function createDriver<P>(
   };
 }
 
-export type JSXFactory = (type: any, props: any, ...children: any[]) => JSX.Element;
 
-export function createWrapper(h: JSXFactory , Component: any) {
-  return function<P = {}>(generator: JsxGenerator<P>, displayName?: string) {
-
-    type State = { child: JSX.Element };
-
-    class GeneratorComponent<P> extends Component<P, State> {
+export function createWrapper(Component: any) {
+  return function<P = {}, TOut = any>(generator: GeneratorFn<P, TOut>, displayName?: string) {
+    type State = { child: TOut };
+    class GeneratorComponent<P> extends Component {
       state: State = { child: null };
       driver: IDriver;
 
@@ -71,31 +74,9 @@ export function createWrapper(h: JSXFactory , Component: any) {
         this.driver.update();
       }
 
-      componentDidUpdate() {
-        this.driver.update();
-      }
-
-      componentWillUnmount() {
-        this.driver.stop();
-      }
-
-      // TODO:
-      /*
-      shouldComponentUpdate() {
-
-      }
-      */
-
-      /*
-      componentWillReceiveProps() {
-
-      }
-      */
-
-      render() {
-        const { child } = this.state;
-        return child ? child : null;
-      }
+      componentDidUpdate() { this.driver.update(); }
+      componentWillUnmount() { this.driver.stop(); }
+      render() { return this.state.child || null; }
     }
 
     GeneratorComponent.displayName = displayName || generator.name;

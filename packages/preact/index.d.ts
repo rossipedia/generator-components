@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 export interface AsyncIterator<T, TIn = any> {
   next(value?: TIn): Promise<IteratorResult<T>>;
   return?(value?: TIn): Promise<IteratorResult<T>>;
@@ -23,4 +21,6 @@ export interface GeneratorFn<P = {}, TOut = any> {
 export default function<P = {}, TOut = any>(
   generator: GeneratorFn<P, TOut>,
   displayName?: string
-): React.ComponentClass<P>;
+): any;
+// Until 'preact' fixes their typings we have to use 'any':
+// https://github.com/developit/preact/issues/639

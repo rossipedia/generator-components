@@ -9,10 +9,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    modules: [
-      path.resolve(__dirname, "node_modules"),
-      "node_modules"
-    ]
+    modules: [path.resolve(__dirname, "node_modules"), "node_modules"]
   },
   module: {
     rules: [

@@ -2,17 +2,14 @@
   "name": "@generator-components/driver",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "scripts": {
     "prepare": "tsc",
     "build": "tsc"
-
   },
   "devDependencies": {
-    "@types/react": "^15.6.0",
-    "typescript": "^2.4.2"
-  },
-  "peerDependencies": {
+    "typescript": "^2.4.2",
     "tslib": "^1.7.1"
-  }
+  },
+  "private": true
 }

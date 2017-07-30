@@ -2,19 +2,23 @@
   "name": "@generator-components/react",
   "version": "1.0.0",
   "license": "MIT",
-  "main": "index.js",
+  "main": "react-driver.cjs.js",
+  "module": "react-driver.es.js",
+  "types": "index.d.ts",
   "scripts": {
-    "prepare": "tsc",
-    "build": "tsc"
-  },
-  "dependencies": {
-    "@generator-components/driver": "*"
-  },
-  "devDependencies": {
-    "@types/react": "^15.6.0",
-    "typescript": "^2.4.2"
+    "build": "rollup -c",
+    "prepare": "rollup -c"
   },
   "peerDependencies": {
     "react": "^15"
-  }
+  },
+  "devDependencies": {
+    "@types/react": "*",
+    "rollup": "^0.45.2"
+  },
+  "files": [
+    "react-driver.cjs.js",
+    "react-driver.es.js",
+    "index.d.ts"
+  ]
 }
