@@ -9,7 +9,7 @@ import gl from 'glamorous';
     : '__@@asyncIterator__';
 
 const Container = gl.div({
-  fontFamily: 'sans-serif'
+  fontFamily: 'sans-serif',
 });
 
 interface Props {
@@ -17,27 +17,31 @@ interface Props {
   onChange(by: number): void;
 }
 
-const Counter = fromGenerator<Props>(async function* Counter({ props, update }) {
+const Counter = fromGenerator<Props>(async function* Counter({
+  props,
+  update,
+  createElement,
+}) {
   const inc = update(() => props.onChange(1));
   const dec = update(() => props.onChange(-1));
 
-  const render = ({ num: i }: Props) => (
+  const render = ({ num: i }: Props) =>
     <Container>
-      <p>Count: {i}</p>
+      <p>
+        Count: {i}
+      </p>
       <p>
         <button onClick={inc}>+</button>
         <button onClick={dec}>-</button>
       </p>
-    </Container>
-  );
+    </Container>;
 
   do {
     yield render(props);
-  } while (props = yield);
+  } while ((props = yield));
 });
 
-
-class App extends React.Component<{}, {num: number}> {
+class App extends React.Component<{}, { num: number }> {
   state = { num: 0 };
 
   onChange = (by: number) => {
@@ -45,6 +49,7 @@ class App extends React.Component<{}, {num: number}> {
   };
 
   render() {
+    const { createElement } = React;
     return (
       <div>
         <Counter num={this.state.num} onChange={this.onChange} />
@@ -53,4 +58,4 @@ class App extends React.Component<{}, {num: number}> {
   }
 }
 
-render(<App />, document.getElementById('app'));
+render(React.createElement(App), document.getElementById('app'));
