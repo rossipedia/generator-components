@@ -1,5 +1,8 @@
 {
-	"devDependencies": {
-		"lerna": "^2.0.0"
-	}
+  "private": true,
+  "name": "generator-components",
+  "devDependencies": {
+    "lerna": "^2.0.0"
+  },
+  "workspaces": ["packages/*"]
 }
