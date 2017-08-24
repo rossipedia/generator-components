@@ -1,106 +1,63 @@
-export interface AsyncIterator<T, TIn = any> {
-  next(value?: TIn): Promise<IteratorResult<T>>;
-  return?(value?: TIn): Promise<IteratorResult<T>>;
-  throw?(e?: TIn): Promise<IteratorResult<T>>;
-}
-
-export interface UpdateFn {
-  (): Promise<any>;
-  <T extends Function>(fn: T): T;
-}
-
-export declare namespace JSX {
-  interface Element {}
+export type Props = { [key: string]: any };
+export interface JSXLike {
+  type: string | Function;
+  props: Props;
 }
 
 export interface CreateElementFn {
-  (type: any, attributes: any, ...children: any[]): JSX.Element;
+  (type: string | Function, props: Props, ...children: any[]): JSXLike;
 }
 
 export interface GeneratorArgs<P> {
   props: P;
-  update: UpdateFn;
-  createElement?: CreateElementFn;
+  createElement: CreateElementFn;
 }
 
-export interface GeneratorFn<P = {}, TOut = any> {
-  ({ props, update }: GeneratorArgs<P>): AsyncIterator<TOut, P>;
+export interface GeneratorFn<P> {
+  (args: GeneratorArgs<P>): Iterator<JSXLike | Promise<any>>;
 }
 
-export interface IDriver {
-  update: UpdateFn;
+
+const isFn = (v: any) => typeof v === 'function';
+const isProm = (v: any): v is Promise<any> => isFn(v.then);
+
+const isJsx = (v: any): v is JSXLike => !!v && !!v.type && !!v.props;
+
+export interface Driver<P> {
+  tick(input: any): void;
   stop(): void;
 }
 
-export function createDriver<P, TOut = any>(
-  generator: GeneratorFn<P>,
-  props: () => P,
-  render: (child: TOut) => void,
-  createElement?: CreateElementFn
-): IDriver {
-  let running = true;
-  let gen: AsyncIterator<TOut, P>;
+export function driver<P>(
+  fn: GeneratorFn<P>,
+  props: P,
+  createElement: CreateElementFn,
+  render: (child: JSXLike) => void
+): Driver<P> {
+  const gen = fn({ props, createElement });
+  let finished = false;
 
-  function update<T extends Function>(fn?: T): Promise<any> | T {
-    if (typeof fn === 'function') {
-      return function(...args: any[]) {
-        fn(...args);
-        return update();
-      } as any; // shut up typescript I know what I'm doing
+  function tick(input: any) {
+    if (finished) return;
+    const { value, done } = gen.next(input);
+    if (done) return;
+    if (isProm(value)) {
+      value.then(v => {
+        if (isJsx(v)) render(v);
+        tick(undefined);
+      });
+    } else {
+      render(value);
     }
-
-    return gen.next(props()).then(result => {
-      if (!running || result.done || !result.value) return;
-      render(result.value);
-    });
   }
 
-  // kick it off
-  const initialProps = props();
-  gen = generator(
-    { props: initialProps, update, createElement } as GeneratorArgs<P>
-  );
+  function stop() {
+    gen.return();
+    finished = true;
+  }
+
   return {
-    update: update as UpdateFn,
-    stop() {
-      running = false;
-      gen.next(undefined);
-    },
-  };
-}
-
-export function createWrapper(Component: any, createElement?: CreateElementFn) {
-  return function<P = {}, TOut = any>(
-    generator: GeneratorFn<P, TOut>,
-    displayName?: string
-  ) {
-    type State = { child: TOut };
-    class GeneratorComponent<P> extends Component {
-      state: State = { child: null };
-      driver: IDriver;
-
-      componentWillMount() {
-        this.driver = createDriver(
-          generator,
-          () => this.props,
-          child => this.setState({ child }),
-          createElement
-        );
-        this.driver.update();
-      }
-
-      componentDidUpdate() {
-        this.driver.update();
-      }
-      componentWillUnmount() {
-        this.driver.stop();
-      }
-      render() {
-        return this.state.child || null;
-      }
-    }
-
-    GeneratorComponent.displayName = displayName || generator.name;
-    return GeneratorComponent as any;
+    tick,
+    stop,
   };
 }

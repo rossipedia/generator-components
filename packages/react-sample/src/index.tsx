@@ -1,12 +1,7 @@
 import * as React from 'react';
 import { render } from 'react-dom';
-import fromGenerator from '@generator-components/react';
 import gl from 'glamorous';
-
-(Symbol as any).asyncIterator =
-  Symbol.asyncIterator !== undefined
-    ? Symbol.asyncIterator
-    : '__@@asyncIterator__';
+import fromGenerator from '@generator-components/react';
 
 const Container = gl.div({
   fontFamily: 'sans-serif',
@@ -17,28 +12,33 @@ interface Props {
   onChange(by: number): void;
 }
 
-const Counter = fromGenerator<Props>(async function* Counter({
-  props,
-  update,
-  createElement,
-}) {
-  const inc = update(() => props.onChange(1));
-  const dec = update(() => props.onChange(-1));
-
-  const render = ({ num: i }: Props) =>
-    <Container>
-      <p>
-        Count: {i}
-      </p>
-      <p>
-        <button onClick={inc}>+</button>
-        <button onClick={dec}>-</button>
-      </p>
-    </Container>;
+const Counter = fromGenerator<Props>(function* Counter({props, createElement}) {
+  const inc = () => props.onChange(1);
+  const dec = () => props.onChange(-1);
 
   do {
-    yield render(props);
-  } while ((props = yield));
+    props = yield (
+      <Container>
+        <p>
+          Count: {props.num}{' '}
+          <button onClick={inc}>+</button>
+          <button onClick={dec}>-</button>
+        </p>
+      </Container>
+    );
+  } while (props);
+});
+
+const Clock = fromGenerator(function* Loader({createElement}) {
+  const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+  while (true) {
+    yield Promise.resolve(
+      <Container>
+        {new Date().toLocaleString()}
+      </Container>
+    );
+    yield delay(1000);
+  }
 });
 
 class App extends React.Component<{}, { num: number }> {
@@ -53,6 +53,8 @@ class App extends React.Component<{}, { num: number }> {
     return (
       <div>
         <Counter num={this.state.num} onChange={this.onChange} />
+        <hr />
+        <Clock />
       </div>
     );
   }
